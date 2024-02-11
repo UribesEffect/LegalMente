@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legabot Chatbot</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        #chat-container {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .logo {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 50px; /* Tamaño deseado de la imagen */
+            height: auto; /* Altura automática para mantener la proporción */
+            margin-top: 20px; /* Espacio superior */
+            margin-right: 20px; /* Espacio derecho */
+        }
+        .small-logo {
+        position: absolute;
+        top: 1px;
+        left: 85%;
+        transform: translateX(-50%);
+        max-width: 270px; 
+    }
+    .robot-logo {
+        position: absolute;
+        top: 1px;
+        right: 57%;
+        transform: translateX(-50%);
+        max-width: 270px; 
+    }
+        body {
+        margin: 0;
+        padding: 0;
+        background: linear-gradient(180deg, #FFFFFF, #585757);
+    }
+
+    .container {
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: rgba(192, 190, 190, 0.979);
+    }
+
+    .title {
+        color: #333;
+        text-align: center;
+    }
+
+    
+
+    .form-label {
+        color: #333;
+    }
+
+    .btn-primary {
+        background-color: #333;
+        border-color: #333;
+        color: #fff;
+        display: block;
+        margin-top: 20px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+        
+
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        
+        <div id="chat-container" class="mb-3"></div>
+            <img src="Defensoria_del_pueblo-logo.png" alt="Defensoria del pueblo" class="logo">
+            <img src="LegalMente_Logo.png" alt="Otra imagen" class="small-logo">
+        </div>
+        <div class="mb-3">
+            <img src="Robot_cora.png" alt="Otra imagen" class="robot-logo">
+            <label for="response" class="form-label">Respuesta (si/no):</label>
+            <input type="text" class="form-control" id="response">
+        </div>
+        <button type="button" class="btn btn-primary" onclick="submitResponse()">Enviar</button>
+    </div>
+
+    <script>
+        class NodoPregunta {
+            constructor(pregunta, si = null, no = null) {
+                this.pregunta = pregunta;
+                this.si = si;
+                this.no = no;
+            }
+        }
+
+        function createDownloadableOption(text, filename) {
+            const option = document.createElement('a');
+            option.textContent = text;
+            option.href = filename;
+            option.download = filename;
+            option.style.display = 'none'; // Oculta el enlace visualmente
+            document.body.appendChild(option); // Agrega el enlace al documento para que sea accesible para la descarga
+        return option;
+        }
+        function crear_arbol_preguntas() {
+            let pregunta1 = new NodoPregunta("¿Necesitas ayuda legal para resolver un problema relacionado con salud?");
+            let pregunta2 = new NodoPregunta("¿El problema esta relacionado con procedimientos no PBS?\n \n se refiere a cualquier tratamiento, intervención o procedimiento médico que no está incluido en el plan de atención estándar para una determinada condición o enfermedad.");
+            let pregunta3 = new NodoPregunta("¿El problema esta relacionado con procedimientos PBS?\n \n Los procedimientos del Plan de Beneficios en Salud son aquellos tratamientos, intervenciones médicas o servicios específicos que están incluidos y cubiertos por un plan de atención médica o seguro de salud.");
+            let pregunta4 = new NodoPregunta("¿El problema esta relacionado con restriccion del acceso al servicio a la salud?\n \n La restricción del acceso al servicio de salud se refiere a cualquier barrera, limitación o impedimento que impida a los individuos recibir atención médica o acceder a los servicios de salud que necesitan.");
+            let pregunta5 = new NodoPregunta("¿El problema esta relacionado con una respuesta de peticion pendiente?\n \n La respuesta a una petición se refiere al acto de proporcionar una contestación o reacción a una solicitud formal o informal realizada por parte de un individuo, grupo o entidad.");
+            let Respuesta = new NodoPregunta("¿Quieres volver al menu inicial?");
+
+            pregunta1.si = pregunta2;
+            pregunta1.no = Respuesta;
+            pregunta2.si = createDownloadableOption("Procedimiento no PBS", "No_PBS.docx");
+            pregunta2.no = pregunta3;
+            pregunta3.si = createDownloadableOption("Procedimiento PBS", "PBS.docx");
+            pregunta3.no = pregunta4;
+            pregunta4.si = "Restriccion del acceso al servicio a la salud"; //falta el .docx
+            pregunta4.no = pregunta5;
+            pregunta5.si = createDownloadableOption("Respuesta de peticion pendiente", "Respuesta_peticion_pendiente.docx" );
+            pregunta5.no = "podria necesitar asistencia legal de otro tipo";
+            
+            Respuesta.si = pregunta1;
+            Respuesta.no = "Gracias por usar el chatbot de legabot, tu asistente de tramites de confianza!!!";
+
+            return pregunta1;
+        }
+
+        let currentQuestion = crear_arbol_preguntas();
+        displayQuestion(currentQuestion);
+
+        function displayQuestion(question) {
+            let responseContainer = document.getElementById('chat-container');
+            let questionText = document.createElement('p');
+            questionText.textContent = question.pregunta;
+            responseContainer.appendChild(questionText);
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+        }
+
+        function Bot_respuesta() {
+            let responseContainer = document.getElementById('chat-container');
+            let userInput = document.getElementById('response').value.toLowerCase().trim();
+
+            let responseText = document.createElement('p');
+            responseText.textContent = 'Tu respuesta: ' + userInput;
+            responseContainer.appendChild(responseText);
+
+            if (userInput === "si") {
+                if (currentQuestion.si instanceof NodoPregunta) {
+                    currentQuestion = currentQuestion.si;
+                    displayQuestion(currentQuestion);
+                } else {
+                    displayResult(currentQuestion.si);
+                }
+            } else if (userInput === "no") {
+                if (currentQuestion.no instanceof NodoPregunta) {
+                    currentQuestion = currentQuestion.no;
+                    displayQuestion(currentQuestion);
+                } else {
+                    displayResult(currentQuestion.no);
+                }
+            } else {
+                let errorText = document.createElement('p');
+                errorText.textContent = "Respuesta inválida. Por favor, responda 'si' o 'no'.";
+                responseContainer.appendChild(errorText);
+            }
+
+            document.getElementById('response').value = '';
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+        }
+
+        function displayResult(result) {
+            let responseContainer = document.getElementById('chat-container');
+            let resultText = document.createElement('p');
+            resultText.textContent = result;
+            responseContainer.appendChild(resultText);
+        }
+
+        function submitResponse() {
+            Bot_respuesta();
+        }
+    </script>
+</body>
+</html>
