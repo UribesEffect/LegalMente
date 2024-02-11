@@ -1,4 +1,5 @@
 LegalMente
+
 Este es un chatbot desarrollado para proporcionar asistencia legal en diversos temas relacionados con la salud. Aquí está una descripción detallada de cómo funciona y cómo puedes interactuar con él:
 
 Funcionalidades
